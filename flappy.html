@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect 4 AI</title>
+
+<style>
+/* ---------- PAGE ---------- */
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#0f172a;
+  font-family:Arial, sans-serif;
+}
+
+.game{
+  width:95%;
+  max-width:520px;
+  color:white;
+  text-align:center;
+}
+
+/* ---------- CONTROLS ---------- */
+select, button{
+  padding:10px;
+  font-size:16px;
+  margin:6px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+/* ---------- SCORE ---------- */
+.score{
+  display:flex;
+  justify-content:space-around;
+  margin:10px 0;
+  font-size:18px;
+}
+
+/* ---------- BOARD BOX ---------- */
+.board-box{
+  background:#1e3a8a;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 0 25px black;
+  width:100%;
+}
+
+/* ---------- BOARD (🔥 MAIN FIX) ---------- */
+.board{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  grid-template-rows:repeat(6, 1fr);
+  gap:10px;
+
+  /* FORCE HEIGHT SO ROWS SHOW */
+  height:60vw;        /* mobile */
+  max-height:420px;   /* desktop */
+}
+
+/* ---------- CELLS ---------- */
+.cell{
+  width:100%;
+  height:100%;
+  background:#e5e7eb;
+  border-radius:50%;
+  border:2px solid #111;
+  cursor:pointer;
+}
+
+/* ---------- COLORS ---------- */
+.red{ background:red; }
+.yellow{ background:yellow; }
+
+/* ---------- MOBILE ---------- */
+@media(max-width:400px){
+  .board{ gap:7px; }
+  select,button{ font-size:14px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <h2>Connect 4 (AI)</h2>
+
+  <select id="level">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard" selected>Hard</option>
+  </select>
+
+  <div class="score">
+    <div>Player 🔴: <span id="playerScore">0</span></div>
+    <div>AI 🟡: <span id="aiScore">0</span></div>
+  </div>
+
+  <p id="status">Your turn (Red)</p>
+
+  <div class="board-box">
+    <div class="board" id="board"></div>
+  </div>
+
+  <button onclick="resetGame()">Reset</button>
+</div>
+
+<script>
+/* ---------- CONSTANTS ---------- */
+const ROWS = 6;
+const COLS = 7;
+const PLAYER = "red";
+const AI = "yellow";
+
+/* ---------- STATE ---------- */
+let board = [];
+let current = PLAYER;
+let gameOver = false;
+let playerScore = 0;
+let aiScore = 0;
+
+const boardDiv = document.getElementById("board");
+const statusText = document.getElementById("status");
+const levelSelect = document.getElementById("level");
+
+/* ---------- CREATE BOARD ---------- */
+function createBoard(){
+  board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
+  boardDiv.innerHTML = "";
+
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.onclick = ()=>playerMove(c);
+      boardDiv.appendChild(cell);
+    }
+  }
+}
+createBoard();
+
+/* ---------- PLAYER MOVE ---------- */
+function playerMove(col){
+  if(gameOver || current !== PLAYER) return;
+
+  if(drop(col, PLAYER)){
+    if(checkWin(board, PLAYER)){
+      statusText.innerText = "You win 🎉";
+      playerScore++;
+      updateScore();
+      gameOver = true;
+      return;
+    }
+    current = AI;
+    statusText.innerText = "AI thinking...";
+    setTimeout(aiMove, 400);
+  }
+}
+
+/* ---------- AI MOVE ---------- */
+function aiMove(){
+  if(gameOver) return;
+
+  let col;
+  if(levelSelect.value === "easy"){
+    col = randomMove(board);
+  }else if(levelSelect.value === "medium"){
+    col = winOrBlock();
+  }else{
+    col = minimaxRoot(4); // HARD
+  }
+
+  drop(col, AI);
+
+  if(checkWin(board, AI)){
+    statusText.innerText = "AI wins 🤖";
+    aiScore++;
+    updateScore();
+    gameOver = true;
+    return;
+  }
+  current = PLAYER;
+  statusText.innerText = "Your turn (Red)";
+}
+
+/* ---------- DROP DISC ---------- */
+function drop(col, color){
+  for(let r=ROWS-1;r>=0;r--){
+    if(board[r][col]===""){
+      board[r][col]=color;
+      draw();
+      return true;
+    }
+  }
+  return false;
+}
+
+/* ---------- DRAW ---------- */
+function draw(){
+  [...boardDiv.children].forEach((cell,i)=>{
+    const r = Math.floor(i / COLS);
+    const c = i % COLS;
+    cell.className = "cell";
+    if(board[r][c]) cell.classList.add(board[r][c]);
+  });
+}
+
+/* ---------- SCORE ---------- */
+function updateScore(){
+  document.getElementById("playerScore").innerText = playerScore;
+  document.getElementById("aiScore").innerText = aiScore;
+}
+
+/* ---------- AI HELPERS ---------- */
+function randomMove(b){
+  let cols=[];
+  for(let c=0;c<COLS;c++)
+    if(b[0][c]==="") cols.push(c);
+  return cols[Math.floor(Math.random()*cols.length)];
+}
+
+function winOrBlock(){
+  for(let c=0;c<COLS;c++){
+    let temp = clone(board);
+    if(simDrop(temp,c,AI) && checkWin(temp,AI)) return c;
+    temp = clone(board);
+    if(simDrop(temp,c,PLAYER) && checkWin(temp,PLAYER)) return c;
+  }
+  return randomMove(board);
+}
+
+/* ---------- HARD AI (MINIMAX) ---------- */
+function minimaxRoot(depth){
+  let bestScore = -Infinity;
+  let bestCol = randomMove(board);
+
+  for(let c=0;c<COLS;c++){
+    let temp = clone(board);
+    if(simDrop(temp,c,AI)){
+      let score = minimax(temp, depth-1, false);
+      if(score > bestScore){
+        bestScore = score;
+        bestCol = c;
+      }
+    }
+  }
+  return bestCol;
+}
+
+function minimax(b, depth, isMax){
+  if(checkWin(b,AI)) return 1000;
+  if(checkWin(b,PLAYER)) return -1000;
+  if(depth === 0) return 0;
+
+  if(isMax){
+    let best=-Infinity;
+    for(let c=0;c<COLS;c++){
+      let temp = clone(b);
+      if(simDrop(temp,c,AI))
+        best=Math.max(best,minimax(temp,depth-1,false));
+    }
+    return best;
+  }else{
+    let best=Infinity;
+    for(let c=0;c<COLS;c++){
+      let temp = clone(b);
+      if(simDrop(temp,c,PLAYER))
+        best=Math.min(best,minimax(temp,depth-1,true));
+    }
+    return best;
+  }
+}
+
+/* ---------- HELPERS ---------- */
+function clone(b){ return b.map(r=>r.slice()); }
+
+function simDrop(b,col,color){
+  for(let r=ROWS-1;r>=0;r--){
+    if(b[r][col]===""){
+      b[r][col]=color;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* ---------- WIN CHECK ---------- */
+function checkWin(b,color){
+  for(let r=0;r<ROWS;r++)
+    for(let c=0;c<COLS;c++)
+      if(dir(b,r,c,1,0,color) ||
+         dir(b,r,c,0,1,color) ||
+         dir(b,r,c,1,1,color) ||
+         dir(b,r,c,1,-1,color))
+        return true;
+  return false;
+}
+
+function dir(b,r,c,dr,dc,color){
+  for(let i=0;i<4;i++){
+    let nr=r+dr*i, nc=c+dc*i;
+    if(nr<0||nr>=ROWS||nc<0||nc>=COLS||b[nr][nc]!==color)
+      return false;
+  }
+  return true;
+}
+
+/* ---------- RESET ---------- */
+function resetGame(){
+  gameOver=false;
+  current=PLAYER;
+  statusText.innerText="Your turn (Red)";
+  createBoard();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battle Game</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  background:#0e0e0e;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.game-box{
+  background:#1c1c1c;
+  width:90%;
+  max-width:420px;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(255,152,0,0.4);
+  animation:fadeIn 1.5s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:scale(0.9);}
+  to{opacity:1; transform:scale(1);}
+}
+
+h1{
+  margin-bottom:15px;
+  color:#ff9800;
+}
+
+.player{
+  margin:15px 0;
+}
+
+.bar{
+  background:#333;
+  border-radius:10px;
+  overflow:hidden;
+  height:18px;
+}
+
+.hp{
+  height:100%;
+  width:100%;
+  background:#4caf50;
+  transition:0.5s;
+}
+
+.enemy .hp{
+  background:#f44336;
+}
+
+.buttons{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:20px;
+}
+
+button{
+  padding:10px 18px;
+  border:none;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.attack{
+  background:#ff5722;
+  color:#fff;
+}
+
+.heal{
+  background:#4caf50;
+  color:#fff;
+}
+
+.reset{
+  background:#2196f3;
+  color:#fff;
+  margin-top:15px;
+}
+
+.log{
+  margin-top:15px;
+  font-size:14px;
+  min-height:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>⚔️ Battle Game</h1>
+
+  <div class="player">
+    <p>🧑 Player HP</p>
+    <div class="bar"><div class="hp" id="playerHp"></div></div>
+  </div>
+
+  <div class="player enemy">
+    <p>🤖 Enemy HP</p>
+    <div class="bar"><div class="hp" id="enemyHp"></div></div>
+  </div>
+
+  <div class="buttons">
+    <button class="attack" onclick="attack()">Attack</button>
+    <button class="heal" onclick="heal()">Heal</button>
+  </div>
+
+  <div class="log" id="log"></div>
+
+  <button class="reset" onclick="resetGame()">Restart</button>
+</div>
+
+<script>
+let player = 100;
+let enemy = 100;
+
+const playerBar = document.getElementById("playerHp");
+const enemyBar = document.getElementById("enemyHp");
+const log = document.getElementById("log");
+
+function updateBars(){
+  playerBar.style.width = player + "%";
+  enemyBar.style.width = enemy + "%";
+}
+
+function attack(){
+  if(player <= 0 || enemy <= 0) return;
+
+  let pDamage = Math.floor(Math.random() * 15) + 5;
+  let eDamage = Math.floor(Math.random() * 12) + 5;
+
+  enemy -= pDamage;
+  player -= eDamage;
+
+  if(enemy < 0) enemy = 0;
+  if(player < 0) player = 0;
+
+  log.innerText = `You hit enemy (-${pDamage}) | Enemy hit you (-${eDamage})`;
+
+  checkResult();
+  updateBars();
+}
+
+function heal(){
+  if(player <= 0 || enemy <= 0) return;
+
+  let healValue = Math.floor(Math.random() * 15) + 5;
+  player += healValue;
+  if(player > 100) player = 100;
+
+  let eDamage = Math.floor(Math.random() * 10) + 5;
+  player -= eDamage;
+  if(player < 0) player = 0;
+
+  log.innerText = `You healed (+${healValue}) | Enemy attacked (-${eDamage})`;
+
+  checkResult();
+  updateBars();
+}
+
+function checkResult(){
+  if(enemy === 0){
+    log.innerText = "🎉 You Win the Battle!";
+  }
+  if(player === 0){
+    log.innerText = "😢 You Lost! Try Again.";
+  }
+}
+
+function resetGame(){
+  player = 100;
+  enemy = 100;
+  log.innerText = "";
+  updateBars();
+}
+
+updateBars();
+</script>
+
+</body>
+</html>

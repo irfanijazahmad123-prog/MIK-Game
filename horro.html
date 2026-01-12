@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horror Game</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, sans-serif;
+}
+
+body{
+  background:black;
+  color:white;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* GAME BOX */
+.game{
+  width:95%;
+  max-width:400px;
+  height:600px;
+  background:#020617;
+  border-radius:12px;
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+}
+
+/* TOP BAR */
+.top{
+  padding:10px;
+  background:#020617;
+  font-size:16px;
+}
+
+/* ROOM */
+.room{
+  position:relative;
+  width:100%;
+  height:100%;
+  background:#000;
+}
+
+/* DARK OVERLAY */
+.dark{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  transition:0.3s;
+}
+
+/* LIGHT ON */
+.light-on{
+  background:rgba(0,0,0,0.2);
+}
+
+/* GHOST */
+.ghost{
+  position:absolute;
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  font-size:80px;
+  transition:0.3s;
+}
+
+.show{
+  transform:translate(-50%,-50%) scale(1);
+  animation:shake 0.3s infinite;
+}
+
+/* BUTTON */
+button{
+  position:absolute;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:12px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  background:#dc2626;
+  color:white;
+  cursor:pointer;
+}
+
+/* SHAKE */
+@keyframes shake{
+  0%{transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+  25%{transform:translate(-52%,-50%) scale(1) rotate(-2deg);}
+  50%{transform:translate(-48%,-50%) scale(1) rotate(2deg);}
+  75%{transform:translate(-52%,-50%) scale(1) rotate(-2deg);}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+}
+
+/* MOBILE */
+@media(max-width:500px){
+  .game{height:520px;}
+  .ghost{font-size:65px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <div class="top">
+    👻 Horror Survival | Time: <span id="time">0</span>s
+  </div>
+
+  <div class="room">
+    <div class="ghost" id="ghost">👻</div>
+    <div class="dark" id="dark"></div>
+  </div>
+
+  <button onclick="toggleLight()">🔦 Torch</button>
+</div>
+
+<script>
+let light = false;
+let time = 0;
+let gameOver = false;
+
+const dark = document.getElementById("dark");
+const ghost = document.getElementById("ghost");
+const timeEl = document.getElementById("time");
+
+/* Torch */
+function toggleLight(){
+  if(gameOver) return;
+  light = !light;
+  dark.classList.toggle("light-on");
+}
+
+/* Timer */
+setInterval(()=>{
+  if(gameOver) return;
+  time++;
+  timeEl.textContent = time;
+},1000);
+
+/* Ghost logic */
+setInterval(()=>{
+  if(gameOver) return;
+
+  let appear = Math.random() < 0.4;
+  if(appear){
+    ghost.classList.add("show");
+
+    // if light off = lose
+    if(!light){
+      gameOver = true;
+      setTimeout(()=>{
+        alert("💀 Game Over!\nSurvived: "+time+" seconds");
+        location.reload();
+      },200);
+    }
+
+    setTimeout(()=>ghost.classList.remove("show"),700);
+  }
+},2000);
+</script>
+
+</body>
+</html>

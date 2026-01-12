@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arcade Space Game</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:#020617;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.game{
+    position:relative;
+    width:90vw;
+    max-width:400px;
+    height:80vh;
+    max-height:600px;
+    background:black;
+    border-radius:15px;
+    overflow:hidden;
+    border:2px solid #38bdf8;
+}
+
+/* Player */
+.player{
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:40px;
+    height:40px;
+    background:#22c55e;
+    border-radius:10px;
+}
+
+/* Enemy */
+.enemy{
+    position:absolute;
+    top:-40px;
+    width:35px;
+    height:35px;
+    background:#ef4444;
+    border-radius:50%;
+    animation: fall 3s linear forwards;
+}
+
+/* Animation */
+@keyframes fall{
+    to{
+        top:110%;
+    }
+}
+
+.score{
+    position:absolute;
+    top:10px;
+    left:10px;
+    color:white;
+    font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game" id="game">
+    <div class="score" id="score">Score: 0</div>
+    <div class="player" id="player"></div>
+</div>
+
+<script>
+const game = document.getElementById("game");
+const player = document.getElementById("player");
+const scoreText = document.getElementById("score");
+
+let score = 0;
+let playerX = game.clientWidth / 2 - 20;
+
+// Player movement (Keyboard)
+document.addEventListener("keydown", e => {
+    if(e.key === "ArrowLeft") movePlayer(-25);
+    if(e.key === "ArrowRight") movePlayer(25);
+});
+
+// Touch movement (Mobile)
+game.addEventListener("touchmove", e => {
+    let touchX = e.touches[0].clientX - game.getBoundingClientRect().left;
+    playerX = touchX - 20;
+    updatePlayer();
+});
+
+function movePlayer(value){
+    playerX += value;
+    updatePlayer();
+}
+
+function updatePlayer(){
+    playerX = Math.max(0, Math.min(game.clientWidth - 40, playerX));
+    player.style.left = playerX + "px";
+}
+
+// Enemy creation
+function createEnemy(){
+    const enemy = document.createElement("div");
+    enemy.classList.add("enemy");
+    enemy.style.left = Math.random() * (game.clientWidth - 35) + "px";
+    game.appendChild(enemy);
+
+    const checkCollision = setInterval(() => {
+        const eRect = enemy.getBoundingClientRect();
+        const pRect = player.getBoundingClientRect();
+
+        if(
+            eRect.bottom > pRect.top &&
+            eRect.top < pRect.bottom &&
+            eRect.left < pRect.right &&
+            eRect.right > pRect.left
+        ){
+            alert("💥 Game Over!\nScore: " + score);
+            location.reload();
+        }
+    }, 20);
+
+    enemy.addEventListener("animationend", () => {
+        clearInterval(checkCollision);
+        enemy.remove();
+        score++;
+        scoreText.innerText = "Score: " + score;
+    });
+}
+
+// Enemy loop
+setInterval(createEnemy, 1200);
+</script>
+
+</body>
+</html>

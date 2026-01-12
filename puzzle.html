@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puzzle Game with Sound</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #020617;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+.game {
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 15px;
+    font-size: clamp(22px, 5vw, 30px);
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tile {
+    aspect-ratio: 1 / 1;
+    background: #38bdf8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(22px, 6vw, 32px);
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s;
+}
+
+.tile:active {
+    transform: scale(0.95);
+}
+
+.tile:hover {
+    background: #0ea5e9;
+}
+
+.empty {
+    background: transparent;
+    cursor: default;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #22c55e;
+    color: black;
+}
+
+button:hover {
+    background: #16a34a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+    <h1>🧩 Puzzle Game</h1>
+    <div class="board" id="board"></div>
+    <button onclick="shuffle()">Shuffle</button>
+</div>
+
+<!-- 🔊 Sounds -->
+<audio id="moveSound" src="https://assets.mixkit.co/sfx/preview/mixkit-click-tone-1110.mp3"></audio>
+<audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
+
+<script>
+const board = document.getElementById("board");
+const moveSound = document.getElementById("moveSound");
+const winSound = document.getElementById("winSound");
+
+let tiles = [];
+
+function createBoard() {
+    tiles = [...Array(8).keys()].map(n => n + 1);
+    tiles.push(null);
+    render();
+}
+
+function render() {
+    board.innerHTML = "";
+    tiles.forEach((value, index) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+
+        if (value === null) {
+            tile.classList.add("empty");
+        } else {
+            tile.textContent = value;
+            tile.addEventListener("click", () => moveTile(index));
+            tile.addEventListener("touchstart", () => moveTile(index));
+        }
+
+        board.appendChild(tile);
+    });
+}
+
+function moveTile(index) {
+    const emptyIndex = tiles.indexOf(null);
+    const validMoves = [
+        emptyIndex - 1,
+        emptyIndex + 1,
+        emptyIndex - 3,
+        emptyIndex + 3
+    ];
+
+    if (validMoves.includes(index)) {
+        [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+        moveSound.currentTime = 0;
+        moveSound.play();
+        render();
+        checkWin();
+    }
+}
+
+function shuffle() {
+    for (let i = tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
+    render();
+}
+
+function checkWin() {
+    for (let i = 0; i < 8; i++) {
+        if (tiles[i] !== i + 1) return;
+    }
+    setTimeout(() => {
+        winSound.play();
+        alert("🎉 Congratulations! Puzzle Solved!");
+    }, 200);
+}
+
+createBoard();
+</script>
+
+</body>
+</html>

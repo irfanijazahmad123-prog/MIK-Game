@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe AI</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:#020617;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+
+.game{
+  width:95%;
+  max-width:360px;
+  text-align:center;
+}
+
+h1{
+  margin-bottom:10px;
+}
+
+/* difficulty */
+select{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:6px;
+  font-size:16px;
+}
+
+/* scores */
+.scores{
+  display:flex;
+  gap:6px;
+  margin-bottom:10px;
+}
+
+.score-box{
+  flex:1;
+  background:#0f172a;
+  padding:8px;
+  border-radius:6px;
+  font-size:14px;
+}
+
+/* BOARD */
+.board{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:6px;
+}
+
+/* CELLS — FIXED HEIGHT */
+.cell{
+  width:100%;
+  height:100px;          /* 👈 MAIN FIX */
+  background:#38bdf8;
+  border-radius:10px;
+  font-size:42px;
+  font-weight:bold;
+  color:#020617;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+@media (max-width:500px){
+  .cell{
+    height:80px;         /* mobile */
+    font-size:36px;
+  }
+}
+
+.cell:active{
+  transform:scale(0.95);
+}
+
+/* button */
+button{
+  margin-top:12px;
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <h1>❌ Tic Tac Toe ⭕</h1>
+
+  <select id="difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard (Unbeatable)</option>
+  </select>
+
+  <div class="scores">
+    <div class="score-box">You ❌<br><span id="playerScore">0</span></div>
+    <div class="score-box">Draw 🤝<br><span id="drawScore">0</span></div>
+    <div class="score-box">AI ⭕<br><span id="aiScore">0</span></div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <button onclick="resetBoard()">Restart</button>
+</div>
+
+<script>
+const boardEl = document.getElementById("board");
+const diffEl = document.getElementById("difficulty");
+
+const pScoreEl = document.getElementById("playerScore");
+const aScoreEl = document.getElementById("aiScore");
+const dScoreEl = document.getElementById("drawScore");
+
+let board = Array(9).fill("");
+let human = "X", ai = "O";
+let gameOver = false;
+
+let pScore = 0, aScore = 0, dScore = 0;
+
+/* draw board */
+function drawBoard(){
+  boardEl.innerHTML="";
+  board.forEach((v,i)=>{
+    const c=document.createElement("div");
+    c.className="cell";
+    c.textContent=v;
+    c.onclick=()=>move(i);
+    boardEl.appendChild(c);
+  });
+}
+
+function move(i){
+  if(board[i] || gameOver) return;
+
+  board[i]=human;
+  drawBoard();
+
+  if(win(human)){
+    pScore++; updateScores(); end("🎉 You Win"); return;
+  }
+  if(draw()){
+    dScore++; updateScores(); end("🤝 Draw"); return;
+  }
+
+  setTimeout(aiMove,300);
+}
+
+function aiMove(){
+  let d=diffEl.value;
+  let m = d==="easy" ? rand() :
+          d==="medium" ? (Math.random()<0.5?rand():best()) :
+          best();
+
+  board[m]=ai;
+  drawBoard();
+
+  if(win(ai)){
+    aScore++; updateScores(); end("🤖 AI Wins");
+  }else if(draw()){
+    dScore++; updateScores(); end("🤝 Draw");
+  }
+}
+
+function rand(){
+  let e=board.map((v,i)=>v===""?i:null).filter(v=>v!==null);
+  return e[Math.floor(Math.random()*e.length)];
+}
+
+/* minimax */
+function best(){
+  let bestScore=-999, move;
+  for(let i=0;i<9;i++){
+    if(board[i]===""){
+      board[i]=ai;
+      let s=minimax(false);
+      board[i]="";
+      if(s>bestScore){bestScore=s; move=i;}
+    }
+  }
+  return move;
+}
+
+function minimax(isMax){
+  if(win(ai)) return 1;
+  if(win(human)) return -1;
+  if(draw()) return 0;
+
+  if(isMax){
+    let best=-999;
+    for(let i=0;i<9;i++){
+      if(board[i]===""){
+        board[i]=ai;
+        best=Math.max(best,minimax(false));
+        board[i]="";
+      }
+    }
+    return best;
+  }else{
+    let best=999;
+    for(let i=0;i<9;i++){
+      if(board[i]===""){
+        board[i]=human;
+        best=Math.min(best,minimax(true));
+        board[i]="";
+      }
+    }
+    return best;
+  }
+}
+
+function win(p){
+  const w=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  return w.some(a=>a.every(i=>board[i]===p));
+}
+
+function draw(){
+  return board.every(v=>v!=="");
+}
+
+function end(msg){
+  gameOver=true;
+  setTimeout(()=>alert(msg),200);
+}
+
+function resetBoard(){
+  board=Array(9).fill("");
+  gameOver=false;
+  drawBoard();
+}
+
+function updateScores(){
+  pScoreEl.textContent=pScore;
+  aScoreEl.textContent=aScore;
+  dScoreEl.textContent=dScore;
+}
+
+drawBoard();
+</script>
+
+</body>
+</html>

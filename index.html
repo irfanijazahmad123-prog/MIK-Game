@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Game Zone</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+<style>
+  
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+  scroll-behavior:smooth;
+}
+
+body{
+  background:#f4f4f4;
+  color:#111;
+  transition:0.6s ease;
+  padding-top:70px;
+}
+
+body.dark{
+  background:#0b0b0b;
+  color:#fff;
+}
+
+/* HEADER */
+header{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#1a1a1a;
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 20px;
+  z-index:1000;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:bold;
+}
+
+nav{
+  display:flex;
+  gap:15px;
+}
+
+nav a{
+  color:#fff;
+  text-decoration:none;
+}
+
+nav a:hover{
+  color: #ff9800;
+}
+nav button{
+  cursor:pointer;
+  border:none;
+  padding:6px 10px;
+}
+
+.menu-btn{
+  display:none;
+  font-size:24px;
+  cursor:pointer;
+}
+
+/* HERO */
+.hero{
+  position:relative;
+}
+
+.hero img{
+  width:100%;
+  height: 610px;
+  object-fit:cover;
+  animation:slowZoom 3s ease;
+  margin: 0;
+}
+
+.hero-text{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(0,0,0,0.6);
+  padding:20px 30px;
+  border-radius:12px;
+  color:#fff;
+}
+
+.hero-text ul{
+  list-style:disc;
+  font-size:22px;
+}
+
+@keyframes slowZoom{
+  from{transform:scale(1.1); opacity:0;}
+  to{transform:scale(1); opacity:1;}
+}
+
+/* SECTION */
+.section{
+  padding:90px 20px;
+  text-align:center;
+  animation:fadeSlow 1.5s ease;
+}
+
+@keyframes fadeSlow{
+  from{opacity:0; transform:translateY(60px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:25px;
+  margin-top:40px;
+}
+
+.card{
+  background:#fff;
+  border-radius:15px;
+  padding:30px 20px;
+  cursor:pointer;
+  transition:0.6s ease;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+body.dark .card{
+  background:#1c1c1c;
+}
+
+.card:hover{
+  transform:translateY(-10px) scale(1.05);
+}
+
+.icon{
+  font-size:40px;
+}
+
+.card h3{
+  margin:15px 0;
+}
+
+.card p{
+  font-size:14px;
+  opacity:0.8;
+}
+
+.card button{
+  margin-top:15px;
+  padding:10px 18px;
+  border:none;
+  border-radius:20px;
+  background:#ff9800;
+  color:#fff;
+  cursor:pointer;
+  min-height:42px;
+}
+
+/* CONTACT FORM */
+form{
+  max-width:400px;
+  margin:40px auto 0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+input,textarea,form button{
+  padding:12px;
+  border-radius:6px;
+  border:none;
+}
+
+/* FOOTER */
+footer{
+  background:#1a1a1a;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{
+    position:absolute;
+    top:60px;
+    right:0;
+    background:#1a1a1a;
+    flex-direction:column;
+    width:100%;
+    display:none;
+    padding:15px;
+  }
+
+  nav.show{display:flex;}
+  .menu-btn{display:block;}
+
+  .hero img{height:300px;}
+
+  .hero-text{
+    width:90%;
+    text-align:center;
+  }
+
+  .hero-text ul{
+    font-size:18px;
+  }
+}
+
+/* CONTACT EXTRA */
+.contact-extra{
+  margin-top:70px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.contact-img{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  overflow:hidden;
+  border:5px solid #ff9800;
+  box-shadow:0 0 25px rgba(255,152,0,0.6);
+}
+
+.contact-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* Phone */
+.contact-phone{
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* Social Icons */
+.social-links{
+  display:flex;
+  gap:30px;
+  margin-top:10px;
+}
+
+.social-links a{
+  font-size:32px;
+  text-decoration:none;
+  transition:0.4s ease;
+  display:inline-block;
+}
+
+/* Light Mode */
+body:not(.dark) .social-links a{
+  color:#111;
+}
+
+body:not(.dark) .social-links a:hover{
+  transform:translateY(-10px);
+  color:#ff9800;
+  text-shadow:0 0 15px #ff9800;
+}
+
+/* Dark Mode */
+body.dark .social-links a{
+  color:#fff;
+}
+
+body.dark .social-links a:hover{
+  transform:translateY(-10px);
+  color:#ff9800;
+  text-shadow:0 0 20px #ff9800;
+}
+
+/* Mobile */
+@media(max-width:480px){
+  .contact-img{
+    width:140px;
+    height:140px;
+  }
+  .social-links a{
+    font-size:28px;
+  }
+}
+
+
+.social-icons {
+    display: flex;
+    gap: 25px;
+}
+
+/* Icon style */
+.social-icons a {
+    width: 60px;
+    height: 60px;
+    background: #222;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-size: 28px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Hover colors */
+.social-icons a.facebook:hover {
+    background: #1877f2;
+}
+
+.social-icons a.tiktok:hover {
+    background: #000;
+    box-shadow: 0 0 15px #25f4ee, 0 0 25px #fe2c55;
+}
+
+.social-icons a.youtube:hover {
+    background: #ff0000;
+}
+
+/* Hover animation */
+.social-icons a:hover {
+    transform: translateY(-8px) scale(1.1);
+}
+.phone{
+    font-size:18px;
+    color:#231a1a;
+    margin-bottom:20px;
+    text-align: center;
+}
+
+#contact img{
+  border-radius: 50%;
+  height: 20%;
+  width: 20%;
+}
+
+
+
+
+
+
+
+
+
+/* ===== ULTRA RESPONSIVE PATCH ===== */
+
+/* Screen overflow fix */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* HERO IMAGE RESPONSIVE */
+.hero img {
+  width: 100%;
+  height: auto;
+  min-height: 220px;
+  max-height: 610px;
+}
+
+/* HERO TEXT */
+.hero-text {
+  width: 95%;
+  max-width: 420px;
+  padding: 15px;
+}
+
+/* GAME CARDS FIX */
+.cards {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+/* CARD CONTENT SCALE */
+.card {
+  padding: 22px 15px;
+}
+
+/* BUTTON FULL WIDTH ON MOBILE */
+.card button {
+  width: 100%;
+}
+
+/* CONTACT IMAGE REAL RESPONSIVE */
+#contact img {
+  width: clamp(120px, 35vw, 200px);
+  height: auto;
+  margin: 20px auto;
+  display: block;
+}
+
+/* SOCIAL ICONS WRAP */
+.social-icons {
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* NAV FONT SCALE */
+@media (max-width: 600px) {
+  nav a {
+    font-size: 16px;
+  }
+}
+
+/* SMALL PHONES */
+@media (max-width: 480px) {
+
+  .hero-text ul {
+    font-size: 16px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .card h3 {
+    font-size: 16px;
+  }
+}
+
+/* VERY SMALL SCREENS */
+@media (max-width: 360px) {
+
+  .hero img {
+    min-height: 180px;
+  }
+
+  footer {
+    font-size: 12px;
+  }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎮 MIK GameZone</div>
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <nav id="nav">
+    <a href="#home" onclick="slowGo()">Home</a>&nbsp;&nbsp;
+    <a href="#games" onclick="slowGo()">Games</a>&nbsp;&nbsp;
+    <a href="#about" onclick="slowGo()">About</a>&nbsp;&nbsp;
+    <a href="#contact" onclick="slowGo()">Contact</a>&nbsp;&nbsp;
+    <button onclick="toggleMode()">🌙</button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div class="hero" id="home">
+  <img src="image/pc.jpg.jpg">
+  <div class="hero-text">
+    <ul><li>Welcome to our website</li></ul>
+  </div>
+</div>
+
+<!-- GAMES -->
+<section id="games" class="section">
+  <h2>Games</h2>
+  <div class="cards">
+    <div class="card"><div class="icon">⚔️</div><h3>Battle Game</h3><p>Fight & win</p><a href="battle.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🧠</div><h3>Puzzle Game</h3><p>Brain power</p><a href="puzzle.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🕹️</div><h3>Arcade Game</h3><p>Fast gameplay</p><a href="acred.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🎯</div><h3>Racing Game</h3><p>Extreme speed</p><a href="racing.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">❌⭕</div><h3>Tic Tac Toe</h3><p>People vs AI</p><a href="tacteo.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">👻</div><h3>Horror Game</h3><p>Scary fun</p><a href="horro.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🙂</div><h3>Hangman Game</h3><p>Find the word</p><a href="hangman.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🟡🔴</div><h3>Connect 4 Game</h3><p>Try Me </p><a href="flappy.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🐍</div><h3>Snake Game</h3><p>Soo Funny </p><a href="snake.html"><button>Play</button></a></div>
+    <div class="card"><div class="icon">🐍</div><h3>Typing Gmae</h3><p>Make Your Typing Best </p><a href="typing.html"><button>Play</button></a></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section">
+  <h2>About Us</h2>
+  <div class="cards">
+    <div class="card"><div class="icon">💻</div><h3>PC Gaming</h3><p>High performance games</p></div>
+    <div class="card"><div class="icon">🚀</div><h3>Fast Servers</h3><p>No lag experience</p></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section">
+  <h2>Contact</h2>
+  <div class="cards">
+    <div class="card"><div class="icon">📧</div><h3>location</h3><p>Pirbaba Buner</p></div>
+    <div class="card"><div class="icon">📞</div><h3>Support</h3><p>24/7 Help</p></div>
+  </div>
+
+  <form>
+    <input type="text" placeholder="Name">
+    <input type="email" placeholder="Email">
+    <textarea placeholder="Message"></textarea>
+    <button>Send</button>
+  </form>
+<!-- CONTACT EXTRA --><br><br><br>
+<div class="img-container">
+  <img src="image/khalid.jpg" alt="Janan">
+
+  
+</div>
+<div class="phone">
+ <h3>Khalid Khan</h3>
+  📞 0060 196 909014
+</div>
+<div class="social-icons" style="align-items: center; justify-content: center;">
+  <a href="https://facebook.com" target="_blank" class="facebook">
+      <i class="fab fa-facebook-f"></i>
+  </a>
+
+  <a href="https://www.tiktok.com/@sirg999" target="_blank" class="tiktok">
+      <i class="fab fa-tiktok"></i>
+  </a>
+
+  <a href="https://youtube.com" target="_blank" class="youtube">
+      <i class="fab fa-youtube"></i>
+  </a>
+</div>
+
+
+
+</section>
+
+<footer>
+  © 2026 MIK GameZone | All Rights Reserved
+</footer>
+
+<script>
+function toggleMenu(){
+  document.getElementById("nav").classList.toggle("show");
+}
+function toggleMode(){
+  document.body.classList.toggle("dark");
+}
+function slowGo(){
+  document.body.style.opacity="0";
+  setTimeout(()=>{document.body.style.opacity="1";},600);
+}
+
+
+// Optional JS (example click animation)
+document.querySelectorAll('.social-icons a').forEach(icon => {
+    icon.addEventListener('click', () => {
+        icon.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            icon.style.transform = '';
+        }, 150);
+    });
+});
+
+
+</script>
+
+</body>
+</html>
