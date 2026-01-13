@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Game</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#0f172a;
+  font-family:Arial, sans-serif;
+  color:white;
+}
+
+.game{
+  width:95%;
+  max-width:800px;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.text-box{
+  background:#020617;
+  padding:20px;
+  border-radius:14px;
+  font-size:18px;
+  line-height:1.7;
+  margin-bottom:15px;
+}
+
+.correct{ color:#22c55e; }
+.wrong{ color:#ef4444; }
+.active{
+  border-left:2px solid #38bdf8;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  50%{ border-color:transparent; }
+}
+
+textarea{
+  width:100%;
+  height:140px;
+  font-size:18px;
+  padding:15px;
+  border-radius:12px;
+  border:none;
+  outline:none;
+  resize:none;
+}
+
+.stats{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:12px;
+  font-size:18px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#1d4ed8;
+}
+
+@media(max-width:600px){
+  .text-box{ font-size:16px; }
+  textarea{ height:120px; font-size:16px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <h2>⌨️ Typing Speed Game</h2>
+
+  <div class="text-box" id="text"></div>
+
+  <textarea id="input" placeholder="Start typing here..."></textarea>
+
+  <div class="stats">
+    <div>WPM: <span id="wpm">0</span></div>
+    <div>Accuracy: <span id="accuracy">100%</span></div>
+    <div>Time: <span id="time">0</span>s</div>
+  </div>
+
+  <button onclick="resetGame()">🔁 Try Again</button>
+</div>
+
+<script>
+const sentences = [
+  "Typing is an essential skill in the modern digital world because almost every job, every form of communication, and every creative task today depends on how fast and accurately you can type without looking at the keyboard.",
+
+  "As people spend more hours using laptops, tablets, and smartphones for learning, coding, chatting, gaming, and content creation, the ability to type smoothly and correctly becomes a powerful skill that improves focus, boosts productivity, strengthens muscle memory, and enables uninterrupted expression of thoughts in both personal and professional environments.",
+
+  "Typing practice with long and challenging sentences trains the brain and fingers to work together in perfect coordination, helping users increase their words-per-minute speed, improve accuracy under pressure, avoid common mistakes, and develop confidence while writing emails, assignments, articles, code, or messages on any digital device.",
+
+  "Consistent typing practice using lengthy and complex sentences filled with punctuation, varied vocabulary, and realistic writing patterns pushes users beyond their comfort zone, forcing them to maintain rhythm, accuracy, and concentration for extended periods while adapting to real-world typing scenarios on both mobile phones and desktop computers.",
+  "In the modern digital world where technology is evolving every single day and people rely heavily on computers, mobile phones, and the internet for communication, education, work, creativity, and entertainment, developing fast and accurate typing skills has become one of the most important abilities because it saves time, improves productivity, increases confidence, reduces mental load, allows ideas to flow smoothly without interruption, helps students perform better in studies, enables professionals to work efficiently, supports programmers, writers, designers, and gamers, and ultimately empowers individuals to express their thoughts clearly and effectively in an increasingly connected global society."
+ 
+];
+
+let textEl = document.getElementById("text");
+let input = document.getElementById("input");
+let wpmEl = document.getElementById("wpm");
+let accEl = document.getElementById("accuracy");
+let timeEl = document.getElementById("time");
+
+let sentence = "";
+let startTime = null;
+
+function loadText(){
+  sentence = sentences[Math.floor(Math.random()*sentences.length)];
+  textEl.innerHTML = "";
+  sentence.split("").forEach((ch,i)=>{
+    let span = document.createElement("span");
+    span.innerText = ch;
+    if(i===0) span.classList.add("active");
+    textEl.appendChild(span);
+  });
+}
+
+function resetGame(){
+  input.value = "";
+  startTime = null;
+  wpmEl.innerText = 0;
+  accEl.innerText = "100%";
+  timeEl.innerText = 0;
+  loadText();
+  input.focus();
+}
+
+loadText();
+
+input.addEventListener("input", ()=>{
+  if(!startTime) startTime = new Date();
+
+  let chars = textEl.querySelectorAll("span");
+  let value = input.value.split("");
+  let correct = 0;
+
+  chars.forEach((span,i)=>{
+    if(value[i] == null){
+      span.className = "";
+    }else if(value[i] === span.innerText){
+      span.className = "correct";
+      correct++;
+    }else{
+      span.className = "wrong";
+    }
+  });
+
+  if(chars[value.length]) chars[value.length].classList.add("active");
+
+  let time = Math.floor((new Date() - startTime)/1000);
+  timeEl.innerText = time;
+
+  let words = value.length / 5;
+  let wpm = time > 0 ? Math.floor((words / time) * 60) : 0;
+  wpmEl.innerText = wpm;
+
+  let accuracy = value.length > 0 ? Math.floor((correct / value.length) * 100) : 100;
+  accEl.innerText = accuracy + "%";
+});
+</script>
+
+</body>
+</html>
